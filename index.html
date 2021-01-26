@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Firebase Notification Test</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Test push notifications</h1>
+        <p id="token"></p>
+        <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+        <script>
+            var firebaseConfig = {
+            apiKey: "AIzaSyDgH_9keA5FkNd2w9DS6gF7_0oewnfIaGA",
+            authDomain: "app-push-notification-6ba57.firebaseapp.com",
+            projectId: "app-push-notification-6ba57",
+            storageBucket: "app-push-notification-6ba57.appspot.com",
+            messagingSenderId: "760573265612",
+            appId: "1:760573265612:web:99305f713b082029c42469",
+            measurementId: "G-1LJEEZBK8Z"
+          };
+            firebase.initializeApp(firebaseConfig);
+            const messaging = firebase.messaging();
+            function IntitalizeFireBaseMessaging(){
+                messaging
+                        .requestPermission()
+                        .then(function(){
+                            console.log("Notification Permission")
+                            return messaging.getToken();
+                })
+                        .then(function (token){
+                            console.log("Token : " + token);
+                    document.getElementById("token").innerHTML = token;
+                })
+                        .catch(function (reason){
+                            console.log(reason);
+                });
+            }
+            messaging.onMessage(function(payload){
+                console.log(payload);
+                const notificationOption = {
+                    body:payload.notification.body,
+                    icon:payload.notification.icon,
+                    click_action : payload.notification.click_action
+                };
+                if(Notification.permission==="granted"){
+                    console.log(payload.notification.click_action);
+                    var notification = new Notification(payload.notification.title, notificationOption);
+                    notification.onclick = function (ev){
+                        ev.preventDefault();
+                        window.open(payload.notification.click_action, '_blank');
+                        notification.close();
+                    }
+                }
+            });
+
+            messaging.onTokenRefresh(function (){
+                messaging.getToken()
+                        .then(function (newtoken){
+                            console.log("New Token : " + newtoken);
+                })
+                        .catch(function (reason){
+                            console.log(reason);
+                })
+            })
+            IntitalizeFireBaseMessaging();
+        </script>
+    </body>
+</html>
